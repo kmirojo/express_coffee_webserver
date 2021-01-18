@@ -49,7 +49,11 @@ const userSchema = new Schema(
 userSchema.methods.toJSON = function () {
     const user = this;
     const userObject = user.toObject();
+    // ↓ Excluded attrubutes in response
     delete userObject.password;
+    delete userObject.createdAt;
+    delete userObject.updatedAt;
+    delete userObject.__v;
 
     return userObject;
 };

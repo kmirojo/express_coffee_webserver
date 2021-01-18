@@ -4,20 +4,20 @@ const {
     createUser,
     updateUser,
     deleteUser,
+    getUser,
 } = require("../controllers/user");
+const { verifyToken, verifyAdminRole } = require("../middlewares/auth");
 
 const router = Router();
 
-router.get("/users", getUsers);
+router.get("/users", verifyToken, getUsers);
 
-router.get("/user/:id", (req, res) => {
-    res.json({ res: "Get User!" });
-});
+router.get("/user/:id", verifyToken, getUser);
 
-router.post("/user", createUser);
+router.post("/user", [verifyToken, verifyAdminRole], createUser);
 
-router.put("/user/:id", updateUser);
+router.put("/user/:id", [verifyToken, verifyAdminRole], updateUser);
 
-router.delete("/user/:id", deleteUser);
+router.delete("/user/:id", [verifyToken, verifyAdminRole], deleteUser);
 
 module.exports = router;

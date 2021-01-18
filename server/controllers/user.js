@@ -3,6 +3,7 @@ const _ = require("underscore");
 const User = require("../models/user");
 
 const getUsers = async (req, res) => {
+    console.log(req.user)
     // ↓ Route GET Paramas ↓
     // GET param must be ?from=x
     const fromQueryIndex = Number(req.query.from) || 0;
@@ -12,11 +13,12 @@ const getUsers = async (req, res) => {
     try {
         // E.g User.find({google: true})
         // usersFilter will only return the attributes in the string
-        usersFilter = "name email role status google img";
-        users = await User.find({}, usersFilter)
+        const usersFieldFilter = "name email role status google img";
+        const usersValueFilter = { status: true };
+        users = await User.find(usersValueFilter, usersFieldFilter)
             .skip(fromQueryIndex)
             .limit(queryLimit);
-        usersCount = await User.countDocuments();
+        usersCount = await User.find(usersValueFilter).countDocuments();
 
         res.json({
             ok: true,
@@ -24,7 +26,26 @@ const getUsers = async (req, res) => {
             count: usersCount,
         });
     } catch (error) {
-        res.status(400).json({
+        res.status(500).json({
+            ok: false,
+            error,
+        });
+        console.log("Get Error: ", error);
+    }
+};
+
+const getUser = async (req, res) => {
+    const id = req.params.id;
+
+    try {
+        const userDb = await User.findById(id);
+
+        res.json({
+            ok: true,
+            user: userDb,
+        });
+    } catch (error) {
+        res.status(500).json({
             ok: false,
             error,
         });
@@ -50,7 +71,7 @@ const createUser = async (req, res) => {
             user: userDb,
         });
     } catch (error) {
-        res.status(400).json({
+        res.status(500).json({
             ok: false,
             error,
         });
@@ -75,7 +96,7 @@ const updateUser = async (req, res) => {
             user: userDb,
         });
     } catch (error) {
-        res.status(400).json({
+        res.status(500).json({
             ok: false,
             error,
         });
@@ -87,7 +108,17 @@ const deleteUser = async (req, res) => {
     let id = req.params.id;
 
     try {
-        const deletedUser = await User.findByIdAndRemove(id);
+        // ↓↓ This a real user deletion from Database, but for this
+        // ↓↓ exercise we will only change the user's status
+        // const deletedUser = await User.findByIdAndRemove(id);
+
+        const statusChange = {
+            status: false,
+        };
+
+        const deletedUser = await User.findByIdAndUpdate(id, statusChange, {
+            new: true,
+        });
 
         if (!deletedUser) {
             return res.status(400).json({
@@ -102,7 +133,7 @@ const deleteUser = async (req, res) => {
             deletedUser,
         });
     } catch (error) {
-        res.status(400).json({
+        res.status(500).json({
             ok: false,
             error,
         });
@@ -111,6 +142,7 @@ const deleteUser = async (req, res) => {
 };
 
 module.exports = {
+    getUser,
     getUsers,
     createUser,
     updateUser,
