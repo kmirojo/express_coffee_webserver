@@ -38,14 +38,13 @@ const verifyAdminRole = (req, res, next) => {
     const { user } = req;
 
     if (user.role === "ADMIN_ROLE") {
-        next()
+        next();
     } else {
         res.status(401).json({
             ok: false,
             err: { message: "User is not an admin" },
         });
     }
-
 };
 
 module.exports = {
