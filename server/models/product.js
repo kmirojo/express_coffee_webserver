@@ -1,4 +1,4 @@
-var {Schema, model} = require("mongoose");
+var { Schema, model } = require("mongoose");
 
 var productSchema = new Schema({
     name: { type: String, required: [true, "Name is required"] },
@@ -14,6 +14,10 @@ var productSchema = new Schema({
         required: true,
     },
     user: { type: Schema.Types.ObjectId, ref: "User" },
+    img: {
+        type: String,
+        required: false,
+    },
 });
 
 module.exports = model("Product", productSchema);

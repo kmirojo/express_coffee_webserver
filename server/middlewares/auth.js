@@ -47,7 +47,37 @@ const verifyAdminRole = (req, res, next) => {
     }
 };
 
+// =========================
+// Verify Token (IMG)
+// =========================
+
+const verifyImgToken = async (req, res, next) => {
+    const { token } = req.query;
+
+    try {
+        const verifiedUser = await jwt.verify(token, process.env.TOKEN_SEED);
+
+        // Assign user to request
+        req.user = verifiedUser.user;
+
+        next();
+    } catch (error) {
+        if (error.name === "JsonWebTokenError") {
+            res.status(401).json({
+                ok: false,
+                err: { message: error },
+            });
+        } else {
+            res.status(500).json({
+                ok: false,
+                err: { message: error },
+            });
+        }
+    }
+};
+
 module.exports = {
     verifyToken,
     verifyAdminRole,
+    verifyImgToken,
 };
